@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude the SQLite database — contains account numbers, card numbers, balances -->
+    <exclude domain="database" path="folio.db"/>
+    <!-- Exclude SharedPreferences — contains the Finnhub API key -->
+    <exclude domain="sharedpref" path="folio_settings.xml"/>
+</full-backup-content>
