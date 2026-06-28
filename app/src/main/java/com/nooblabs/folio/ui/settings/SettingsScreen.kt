@@ -199,6 +199,43 @@ fun SettingsScreen(
                 }
             }
 
+            if (com.nooblabs.folio.BuildConfig.DEBUG) {
+                // Demo Data Card
+                SettingsSectionCard(
+                    title = "Demo Data",
+                    icon = Icons.Filled.SettingsSuggest,
+                    iconColor = MaterialTheme.colorScheme.secondary
+                ) {
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "Populate your database with mock bank accounts, transactions, credit cards, and stocks for testing.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Button(
+                            onClick = {
+                                viewModel.generateMockData()
+                                android.widget.Toast.makeText(context, "Demo data generated successfully!", android.widget.Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.SettingsSuggest,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Generate Demo Data", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             // App Version Card
