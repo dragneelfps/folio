@@ -51,6 +51,7 @@ fun MainNavigation(settingsRepository: com.nooblabs.folio.domain.repository.Sett
     val startDestination = if (userName.isBlank()) "welcome" else Screen.Dashboard.route
 
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination

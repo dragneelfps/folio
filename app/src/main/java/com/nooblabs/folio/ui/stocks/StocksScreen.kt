@@ -34,85 +34,57 @@ import com.nooblabs.folio.domain.model.StockInvestment
 import java.text.NumberFormat
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StocksScreen(viewModel: StocksViewModel, onNavigateToSettings: () -> Unit = {}) {
+fun StocksScreen(
+    viewModel: StocksViewModel,
+    onEditStock: (StockInvestment) -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
-    var showStockSheet by remember { mutableStateOf(false) }
-    var editingStock by remember { mutableStateOf<StockInvestment?>(null) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(uiState.error) {
-        uiState.error?.let {
-            snackbarHostState.showSnackbar(it)
-            viewModel.clearError()
-        }
-    }
-
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    editingStock = null
-                    showStockSheet = true
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Stock")
-            }
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            if (uiState.groupedStocks.isEmpty() && uiState.isApiKeySet) {
-                EmptyStocksState()
-            } else {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    if (!uiState.isApiKeySet) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer
-                            ),
-                            shape = RoundedCornerShape(12.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (uiState.groupedStocks.isEmpty() && uiState.isApiKeySet) {
+            EmptyStocksState()
+        } else {
+            Column(modifier = Modifier.fillMaxSize()) {
+                if (!uiState.isApiKeySet) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = "Finnhub API Key Missing",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onErrorContainer
-                                )
-                                Text(
-                                    text = "To fetch real-time stock prices, please add your own Finnhub API Key in Settings.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onErrorContainer
-                                )
-                            }
+                            Text(
+                                text = "Finnhub API Key Missing",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                            Text(
+                                text = "To fetch real-time stock prices, please add your own Finnhub API Key in Settings.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
                         }
                     }
+                }
 
-                    if (uiState.groupedStocks.isEmpty()) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            EmptyStocksState()
-                        }
-                    } else {
-                        val formattedTime = uiState.lastUpdated?.let {
-                            java.text.SimpleDateFormat("hh:mm a", Locale.getDefault()).format(java.util.Date(it))
-                        } ?: "Never"
-                        
-                        Text(
+                if (uiState.groupedStocks.isEmpty()) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        EmptyStocksState()
+                    }
+                } else {
+                    val formattedTime = uiState.lastUpdated?.let {
+                        java.text.SimpleDateFormat("hh:mm a", Locale.getDefault()).format(java.util.Date(it))
+                    } ?: "Never"
+                    
+                    Text(
                         text = "Last Updated at: $formattedTime",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -156,8 +128,7 @@ fun StocksScreen(viewModel: StocksViewModel, onNavigateToSettings: () -> Unit = 
                                         stockUiModel = stockUiModel,
                                         isApiKeySet = uiState.isApiKeySet,
                                         onClick = {
-                                            editingStock = stockUiModel.stock
-                                            showStockSheet = true
+                                            onEditStock(stockUiModel.stock)
                                         }
                                     )
                                 }
@@ -166,31 +137,11 @@ fun StocksScreen(viewModel: StocksViewModel, onNavigateToSettings: () -> Unit = 
                             item {
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
+                        }
                     }
                 }
             }
         }
-    }
-}
-}
-
-    if (showStockSheet) {
-        StockFormBottomSheet(
-            stockToEdit = editingStock,
-            onDismiss = { showStockSheet = false },
-            onSave = { ticker, quantity, avgPrice, purchaseDate ->
-                if (editingStock != null) {
-                    viewModel.updateStock(editingStock!!.id, ticker, quantity, avgPrice, purchaseDate)
-                } else {
-                    viewModel.addStock(ticker, quantity, avgPrice, purchaseDate)
-                }
-                showStockSheet = false
-            },
-            cachedPrices = uiState.prices,
-            globalCurrency = uiState.globalCurrency,
-            onFetchPrice = { ticker -> viewModel.fetchSinglePrice(ticker) },
-            isApiKeySet = uiState.isApiKeySet
-        )
     }
 }
 

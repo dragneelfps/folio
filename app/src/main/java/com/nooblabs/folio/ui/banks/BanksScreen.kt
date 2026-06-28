@@ -29,90 +29,44 @@ import com.nooblabs.folio.domain.model.BankAccount
 import java.text.NumberFormat
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BanksScreen(viewModel: BanksViewModel, onNavigateToSettings: () -> Unit = {}) {
+fun BanksScreen(
+    viewModel: BanksViewModel,
+    onEditBank: (BankAccount) -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
-    var showBankSheet by remember { mutableStateOf(false) }
-    var editingBank by remember { mutableStateOf<BankAccount?>(null) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(uiState.error) {
-        uiState.error?.let {
-            snackbarHostState.showSnackbar(it)
-            viewModel.clearError()
-        }
-    }
-
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { 
-                    editingBank = null
-                    showBankSheet = true 
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (uiState.banks.isEmpty()) {
+            EmptyBanksState()
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Bank Account")
-            }
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            if (uiState.banks.isEmpty()) {
-                EmptyBanksState()
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(uiState.banks) { bankUiModel ->
-                        var isVisible by remember { mutableStateOf(false) }
-                        LaunchedEffect(Unit) {
-                            isVisible = true
-                        }
-                        AnimatedVisibility(
-                            visible = isVisible,
-                            enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                                animationSpec = tween(500),
-                                initialOffsetY = { it / 2 }
-                            )
-                        ) {
-                            BankAccountCard(
-                                bankUiModel = bankUiModel,
-                                onClick = {
-                                    editingBank = bankUiModel.bankAccount
-                                    showBankSheet = true
-                                }
-                            )
-                        }
+                items(uiState.banks) { bankUiModel ->
+                    var isVisible by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) {
+                        isVisible = true
+                    }
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+                            animationSpec = tween(500),
+                            initialOffsetY = { it / 2 }
+                        )
+                    ) {
+                        BankAccountCard(
+                            bankUiModel = bankUiModel,
+                            onClick = {
+                                onEditBank(bankUiModel.bankAccount)
+                            }
+                        )
                     }
                 }
             }
         }
-    }
-
-    if (showBankSheet) {
-        BankFormBottomSheet(
-            bankToEdit = editingBank,
-            globalCurrency = uiState.globalCurrency,
-            onDismiss = { showBankSheet = false },
-            onSave = { name, number, balance, currency ->
-                if (editingBank != null) {
-                    viewModel.updateBank(editingBank!!.id, name, number, balance, currency)
-                } else {
-                    viewModel.addBank(name, number, balance, currency)
-                }
-                showBankSheet = false
-            }
-        )
     }
 }
 

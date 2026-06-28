@@ -33,102 +33,44 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreditCardsScreen(viewModel: CreditCardsViewModel, onNavigateToSettings: () -> Unit = {}) {
+fun CreditCardsScreen(
+    viewModel: CreditCardsViewModel,
+    onEditCard: (CreditCard) -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
-    var showSheet by remember { mutableStateOf(false) }
-    var editingCard by remember { mutableStateOf<CreditCard?>(null) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(uiState.error) {
-        uiState.error?.let {
-            snackbarHostState.showSnackbar(it)
-            viewModel.clearError()
-        }
-    }
-
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    editingCard = null
-                    showSheet = true
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (uiState.cards.isEmpty()) {
+            EmptyCardsState()
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Card")
-            }
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            if (uiState.cards.isEmpty()) {
-                EmptyCardsState()
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(uiState.cards, key = { it.card.id }) { uiModel ->
-                        var isVisible by remember { mutableStateOf(false) }
-                        LaunchedEffect(Unit) {
-                            isVisible = true
-                        }
-                        AnimatedVisibility(
-                            visible = isVisible,
-                            enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                                animationSpec = tween(500),
-                                initialOffsetY = { it / 2 }
-                            )
-                        ) {
-                            CreditCardItem(
-                                uiModel = uiModel,
-                                onClick = {
-                                    editingCard = uiModel.card
-                                    showSheet = true
-                                }
-                            )
-                        }
+                items(uiState.cards, key = { it.card.id }) { uiModel ->
+                    var isVisible by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) {
+                        isVisible = true
+                    }
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+                            animationSpec = tween(500),
+                            initialOffsetY = { it / 2 }
+                        )
+                    ) {
+                        CreditCardItem(
+                            uiModel = uiModel,
+                            onClick = {
+                                onEditCard(uiModel.card)
+                            }
+                        )
                     }
                 }
             }
         }
-    }
-
-    if (showSheet) {
-        CardFormBottomSheet(
-            cardToEdit = editingCard,
-            globalCurrency = uiState.globalCurrency,
-            onDismiss = { showSheet = false },
-            onSave = { name, number, limit, outstanding, dueDate, expiry ->
-                if (editingCard != null) {
-                    viewModel.updateCreditCard(
-                        editingCard!!.id,
-                        name,
-                        number,
-                        limit,
-                        outstanding,
-                        dueDate,
-                        expiry
-                    )
-                } else {
-                    viewModel.addCreditCard(name, number, limit, outstanding, dueDate, expiry)
-                }
-                showSheet = false
-            },
-            onDelete = { card ->
-                viewModel.deleteCreditCard(card)
-                showSheet = false
-            }
-        )
     }
 }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShowChart
@@ -19,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -99,6 +101,15 @@ fun AssetsScreen(
 
     val stocksUiState by stocksViewModel.uiState.collectAsState()
 
+    var showBankSheet by remember { mutableStateOf(false) }
+    var editingBank by remember { mutableStateOf<com.nooblabs.folio.domain.model.BankAccount?>(null) }
+
+    var showStockSheet by remember { mutableStateOf(false) }
+    var editingStock by remember { mutableStateOf<com.nooblabs.folio.domain.model.StockInvestment?>(null) }
+
+    var showCardSheet by remember { mutableStateOf(false) }
+    var editingCard by remember { mutableStateOf<com.nooblabs.folio.domain.model.CreditCard?>(null) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -155,6 +166,30 @@ fun AssetsScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    when (pagerState.currentPage) {
+                        0 -> {
+                            editingBank = null
+                            showBankSheet = true
+                        }
+                        1 -> {
+                            editingStock = null
+                            showStockSheet = true
+                        }
+                        2 -> {
+                            editingCard = null
+                            showCardSheet = true
+                        }
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add")
+            }
         }
     ) { innerPadding ->
         Column(
@@ -165,7 +200,8 @@ fun AssetsScreen(
             // Shared tab row
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.background
             ) {
                 assetTabs.forEachIndexed { index, tab ->
                     Tab(
@@ -184,11 +220,95 @@ fun AssetsScreen(
                 beyondViewportPageCount = 1
             ) { page ->
                 when (page) {
-                    0 -> BanksScreen(viewModel = banksViewModel)
-                    1 -> StocksScreen(viewModel = stocksViewModel)
-                    2 -> CreditCardsScreen(viewModel = creditCardsViewModel)
+                    0 -> BanksScreen(
+                        viewModel = banksViewModel,
+                        onEditBank = { bank ->
+                            editingBank = bank
+                            showBankSheet = true
+                        }
+                    )
+                    1 -> StocksScreen(
+                        viewModel = stocksViewModel,
+                        onEditStock = { stock ->
+                            editingStock = stock
+                            showStockSheet = true
+                        }
+                    )
+                    2 -> CreditCardsScreen(
+                        viewModel = creditCardsViewModel,
+                        onEditCard = { card ->
+                            editingCard = card
+                            showCardSheet = true
+                        }
+                    )
                 }
             }
         }
+    }
+
+    if (showBankSheet) {
+        val banksUiState by banksViewModel.uiState.collectAsState()
+        com.nooblabs.folio.ui.banks.BankFormBottomSheet(
+            bankToEdit = editingBank,
+            globalCurrency = banksUiState.globalCurrency,
+            onDismiss = { showBankSheet = false },
+            onSave = { name, number, balance, currency ->
+                if (editingBank != null) {
+                    banksViewModel.updateBank(editingBank!!.id, name, number, balance, currency)
+                } else {
+                    banksViewModel.addBank(name, number, balance, currency)
+                }
+                showBankSheet = false
+            }
+        )
+    }
+
+    if (showStockSheet) {
+        val stocksUiState by stocksViewModel.uiState.collectAsState()
+        com.nooblabs.folio.ui.stocks.StockFormBottomSheet(
+            stockToEdit = editingStock,
+            onDismiss = { showStockSheet = false },
+            onSave = { ticker, quantity, avgPrice, purchaseDate ->
+                if (editingStock != null) {
+                    stocksViewModel.updateStock(editingStock!!.id, ticker, quantity, avgPrice, purchaseDate)
+                } else {
+                    stocksViewModel.addStock(ticker, quantity, avgPrice, purchaseDate)
+                }
+                showStockSheet = false
+            },
+            cachedPrices = stocksUiState.prices,
+            globalCurrency = stocksUiState.globalCurrency,
+            onFetchPrice = { ticker -> stocksViewModel.fetchSinglePrice(ticker) },
+            isApiKeySet = stocksUiState.isApiKeySet
+        )
+    }
+
+    if (showCardSheet) {
+        val cardsUiState by creditCardsViewModel.uiState.collectAsState()
+        com.nooblabs.folio.ui.creditcards.CardFormBottomSheet(
+            cardToEdit = editingCard,
+            globalCurrency = cardsUiState.globalCurrency,
+            onDismiss = { showCardSheet = false },
+            onSave = { name, number, limit, outstanding, dueDate, expiry ->
+                if (editingCard != null) {
+                    creditCardsViewModel.updateCreditCard(
+                        editingCard!!.id,
+                        name,
+                        number,
+                        limit,
+                        outstanding,
+                        dueDate,
+                        expiry
+                    )
+                } else {
+                    creditCardsViewModel.addCreditCard(name, number, limit, outstanding, dueDate, expiry)
+                }
+                showCardSheet = false
+            },
+            onDelete = { card ->
+                creditCardsViewModel.deleteCreditCard(card)
+                showCardSheet = false
+            }
+        )
     }
 }
