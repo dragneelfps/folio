@@ -87,3 +87,9 @@ dependencies {
   implementation(libs.androidx.material.icons.extended)
 }
 
+configurations.all {
+    exclude(group = "io.opencensus", module = "opencensus-api")
+    exclude(group = "io.opencensus", module = "opencensus-proto")
+}
+
+
