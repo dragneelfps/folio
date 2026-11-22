@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Back folio tab outline peeking top-right -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M38.5,35.5A5.5,5.5 0,0 1,43.5 31.5L69.5,31.5A6,6 0,0 1,75.5 37.5L75.5,63.5A5.5,5.5 0,0 1,71.5 68.5"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.8" />
+
+    <!-- Front folio card frame -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M38.5,37.5L64.5,37.5A6,6 0,0 1,70.5 43.5L70.5,69.5A6,6 0,0 1,64.5 75.5L38.5,75.5A6,6 0,0 1,32.5 69.5L32.5,43.5A6,6 0,0 1,38.5 37.5Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.8" />
+
+    <!-- 3 rising portfolio bars -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M40.1,61.0L42.5,61.0A1.3,1.3 0,0 1,43.8 62.3L43.8,68.2A1.3,1.3 0,0 1,42.5 69.5L40.1,69.5A1.3,1.3 0,0 1,38.8 68.2L38.8,62.3A1.3,1.3 0,0 1,40.1 61.0Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M48.1,55.5L50.5,55.5A1.3,1.3 0,0 1,51.8 56.8L51.8,68.2A1.3,1.3 0,0 1,50.5 69.5L48.1,69.5A1.3,1.3 0,0 1,46.8 68.2L46.8,56.8A1.3,1.3 0,0 1,48.1 55.5Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M56.1,50.0L58.5,50.0A1.3,1.3 0,0 1,59.8 51.3L59.8,68.2A1.3,1.3 0,0 1,58.5 69.5L56.1,69.5A1.3,1.3 0,0 1,54.8 68.2L54.8,51.3A1.3,1.3 0,0 1,56.1 50.0Z" />
+
+    <!-- Upward growth trendline + arrowhead -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M39.5,54.8L47.2,48.2L51.4,50.8L61.8,43.0"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M64.2,41.2L61.72,47.20L57.74,41.94Z" />
+
+</vector>
