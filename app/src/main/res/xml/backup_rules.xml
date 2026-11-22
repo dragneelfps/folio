@@ -2,6 +2,7 @@
 <full-backup-content>
     <!-- Exclude the SQLite database — contains account numbers, card numbers, balances -->
     <exclude domain="database" path="folio.db"/>
-    <!-- Exclude SharedPreferences — contains the Finnhub API key -->
+    <!-- Exclude EncryptedSharedPreferences — contains the Finnhub API key and device-bound master key -->
+    <exclude domain="sharedpref" path="folio_secure_settings.xml"/>
     <exclude domain="sharedpref" path="folio_settings.xml"/>
 </full-backup-content>

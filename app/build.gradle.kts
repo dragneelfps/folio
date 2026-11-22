@@ -85,6 +85,9 @@ dependencies {
   implementation(libs.androidx.lifecycle.viewmodel.navigation3)
   implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.material.icons.extended)
+
+  // Security
+  implementation(libs.androidx.security.crypto)
 }
 
 configurations.all {
