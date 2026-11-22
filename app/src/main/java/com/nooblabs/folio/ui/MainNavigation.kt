@@ -65,7 +65,7 @@ fun MainNavigation(settingsRepository: com.nooblabs.folio.domain.repository.Sett
                         NavigationBarItem(
                             icon = { Icon(screen.icon, contentDescription = null) },
                             label = { Text(screen.label) },
-                            selected = currentDestination?.hierarchy?.any { 
+                            selected = currentDestination?.hierarchy?.any {
                                 it.route == screen.route || (screen.route == "assets" && it.route?.startsWith("assets") == true)
                             } == true,
                             onClick = {
