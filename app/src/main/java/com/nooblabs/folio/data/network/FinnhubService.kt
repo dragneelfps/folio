@@ -17,10 +17,11 @@ class FinnhubService(private val settingsRepository: SettingsRepository) {
         }
 
         try {
-            val urlString = "https://finnhub.io/api/v1/quote?symbol=$ticker&token=$apiKey"
+            val urlString = "https://finnhub.io/api/v1/quote?symbol=$ticker"
             val url = URL(urlString)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
+            connection.setRequestProperty("X-Finnhub-Token", apiKey)
             connection.connectTimeout = 5000
             connection.readTimeout = 5000
 
